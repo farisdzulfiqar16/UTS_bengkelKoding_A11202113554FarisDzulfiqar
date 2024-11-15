@@ -1,0 +1,19 @@
+/* CSS untuk teks berjalan */
+.running-text {
+    white-space: nowrap;            /* Agar teks tidak terputus */
+    overflow: hidden;               /* Menyembunyikan teks yang keluar dari area */
+    width: 100%;                    /* Lebar elemen mengikuti lebar kontainer */
+    font-size: 20px;                /* Ukuran font */
+    font-weight: bold;              /* Tebalkan teks */
+    color: #333;                    /* Warna teks */
+    animation: scroll-text 10s linear infinite; /* Animasikan teks berjalan */
+}
+
+@keyframes scroll-text {
+    from {
+        transform: translateX(100%); /* Mulai dari luar layar (kanan) */
+    }
+    to {
+        transform: translateX(-100%); /* Bergerak ke kiri hingga keluar layar */
+    }
+}
