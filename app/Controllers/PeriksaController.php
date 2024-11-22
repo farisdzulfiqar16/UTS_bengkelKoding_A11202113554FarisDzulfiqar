@@ -13,10 +13,18 @@ class PeriksaController extends BaseController
     // halaman utama
     public function index()
     {
-       $pasienModel = new PasienModel();
-       $data['pasien'] = $pasienModel->findAll(); 
+        $pasienModel = new PasienModel();
+        $dokterModel = new DokterModel();
+        $periksaModel = new PeriksaModel();
 
-       return view('periksa', $data);
+        $data['pasien'] = $pasienModel->findAll();
+        $data['dokter'] = $dokterModel->findAll();
+        $data['periksa'] = $periksaModel->getPeriksaWithRelations();
+
+        $data['tgl_periksa'] = date('Y-m-d');
+        $data['catatan'] = '';
+
+        return view('periksa', $data);
     }
 
     // halaman simpan pasien
@@ -60,20 +68,74 @@ class PeriksaController extends BaseController
     // halaman simpan Periksa
     public function savePeriksa()
     {
-        $periksaModel = new PeriksaModel(); // Menggunakan PeriksaModel
-
         // Ambil data dari form
+            $Pasien = $this->request->getPost('Pasien');
+            $Dokter = $this->request->getPost('id_dokter');
+            $TglPeriksa = $this->request->getPost('tgl_periksa');
+            $Catatan = $this->request->getPost('catatan');
+            $Obat = $this->request->getPost('obat');
+
+        // Kode untuk menyimpan data ke database
+            $db = \Config\Database::connect();
+            $builder = $db->table('periksa');  
+            $builder->insert([
+                'pasien' => $Pasien,
+                'dokter' => $Dokter,
+                'tgl_periksa' => $TglPeriksa,
+                'catatan' => $Catatan,
+                'obat' => $Obat
+            ]);
+
+
+        // Menyimpan flashdata untuk memberi pesan
+            session()->setFlashdata('message', 'Data pemeriksaan berhasil disimpan!');
+
+        // Redirect ke halaman periksa dengan pesan sukses
+            return redirect()->to('/periksa');
+    }
+
+    public function edit($id)
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('pasien');
+
+        $data['pasien'] = $builder->where('id', $id)->get()->getRowArray();
+
+        return view('pasien_edit', $data);
+    }
+
+    public function update($id)
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('periksa');
+
         $data = [
-            'pasien' => $this->request->getPost('Pasien'),
-            'dokter' => $this->request->getPost('Dokter'),
-            'tgl_periksa' => $this->request->getPost('tgl_Periksa'),
-            'catatan' => $this->request->getPost('catatan')
+            'Nama' => $this->request->getPost('Nama'),
+            'Alamat' => $this->request->getPost('Alamat'),
+            'NoHP' => $this->request->getPost('NoHP'),
         ];
 
-        // Simpan data ke database
-        $periksaModel->insert($data);
+        if ($builder->update($data, ['id' => $id])) {
+            session()->setFlashdata('message', 'Data berhasil diperbarui!');
+        } else {
+            session()->setFlashdata('message', 'Gagal memperbarui data.');
+        }
 
-        // Redirect kembali ke halaman periksa dengan pesan sukses
-        return redirect()->to('/periksa')->with('success', 'Data pemeriksaan berhasil disimpan');
+        return redirect()->to('/pasien');
     }
+
+    public function delete($id)
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('pasien');
+
+        if ($builder->delete(['id' => $id])) {
+            session()->setFlashdata('message', 'Data berhasil dihapus!');
+        } else {
+            session()->setFlashdata('message', 'Gagal menghapus data.');
+        }
+
+        return redirect()->to('/pasien');
+    }
+    
 }

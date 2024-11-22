@@ -10,27 +10,80 @@ class DokterController extends BaseController
 {
     public function index()
     {
-        $dokterModel = new DokterModel();
-        $data['dokter'] = $dokterModel->findAll();  // Ambil semua data dokter
+        $db = \Config\Database::connect();
+        $builder = $db->table('dokter');
 
-        return view('dokter_view', $data);
+        $data['dokter'] = $builder->get()->getResultArray();
+
+        $data = [
+            'title' => 'Halaman dokter',
+            'dokter' => $builder->get()->getResultArray(), 
+            'message' => session()->getFlashdata('message') 
+        ];
+        return view('dokter', $data);
     }
 
     public function saveDokter()
     {
-        $dokterModel = new DokterModel();
+        if ($this->request->getMethod() === 'post') {
+            $db = \Config\Database::connect();
+            $builder = $db->table('dokter');
 
-        // Ambil data dari form
+            // Tambahkan data ke database
+            $builder->insert([
+                'Nama' => $this->request->getPost('Nama'),
+                'Alamat' => $this->request->getPost('Alamat'),
+                'NoHP' => $this->request->getPost('NoHP'),
+            ]);
+
+            session()->setFlashdata('message', 'Data dokter berhasil ditambahkan!');
+        }
+
+        return redirect()->to('/dokter');
+    }
+
+    public function edit($id)
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('dokter');
+
+        // $data['dokter'] = $builder->where('id', $id)->get()->getRowArray();
+        $data['dokter'] = $builder->get()->getResultArray();
+        return view('dokter_edit', $data);
+    }
+
+    public function update($id)
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('dokter');
+
         $data = [
-            'nama' => $this->request->getPost('Nama'),
-            'alamat' => $this->request->getPost('Alamat'),
-            'no_hp' => $this->request->getPost('NoHP')
+            'Nama' => $this->request->getPost('Nama'),
+            'Alamat' => $this->request->getPost('Alamat'),
+            'NoHP' => $this->request->getPost('NoHP'),
         ];
 
-        // Simpan data ke database
-        $dokterModel->insert($data);
+        if ($builder->update($data, ['id' => $id])) {
+            session()->setFlashdata('message', 'Data berhasil diperbarui!');
+        } else {
+            session()->setFlashdata('message', 'Gagal memperbarui data.');
+        }
 
-        // Redirect kembali ke halaman dokter dengan pesan sukses
-        return redirect()->to('/dokter')->with('success', 'Data Dokter berhasil disimpan');
+        return redirect()->to('/dokter');
     }
+
+    public function delete($id)
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('dokter');
+
+        if ($builder->delete(['id' => $id])) {
+            session()->setFlashdata('message', 'Data berhasil dihapus!');
+        } else {
+            session()->setFlashdata('message', 'Gagal menghapus data.');
+        }
+
+        return redirect()->to('/dokter');
+    }
+    
 }

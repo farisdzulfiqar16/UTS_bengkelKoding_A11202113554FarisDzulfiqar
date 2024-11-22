@@ -29,8 +29,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="<?= base_url('dokter') ?>">Dokter</a>
                     </li>
-                    
-                </ul>   
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= base_url('/logout') ?>">Logout</a>
+                    </li>
+
+                </ul>
 
                 <form class="d-flex" role="search">
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
@@ -42,81 +45,104 @@
 
     <h2>Periksa</h2>
 
- <!-- Form -->
-    <form class="form row" method="POST" action="<?= base_url('/periksa/save') ?>" name="myForm" onsubmit="return(validate());">
-        <!-- Kode php untuk menghubungkan form dengan database -->
+    <!-- Form -->
+    <form class="form mx-sm-3 mb-2" method="POST" action="<?= base_url('periksa/save') ?>" name="myForm" onsubmit="return(validate());">
+        <!-- nama Pasien -->
         <div class="form-group mx-sm-3 mb-2">
             <label for="inputPasien" class="sr-only">Pasien</label>
-            <select class="form-control" name="id_pasien">
-                <?php
-                $pasien = mysqli_query($mysqli, "SELECT * FROM pasien");
-                while ($data = mysqli_fetch_array($pasien)) {
-                    $selected = ($data['id'] == $id_pasien) ? 'selected="selected"' : '';
-                ?>
-                    <option value="<?php echo $data['id']; ?>" <?php echo $selected; ?>><?php echo $data['nama']; ?></option>
-                <?php
-                }
-                ?>
+            <select class="form-control" name="Pasien">
+                <option value="">Pilih Pasien</option>
+                <?php foreach ($pasien as $data): ?>
+                    <option value="<?= $data['ID']; ?>"><?= $data['nama']; ?></option>
+                <?php endforeach; ?>
             </select>
         </div>
 
-    <?php
-    $result = mysqli_query($mysqli, "SELECT pr.*,d.nama as 'nama_dokter', p.nama as 'nama_pasien' FROM periksa pr LEFT JOIN dokter d ON (pr.id_dokter=d.id) LEFT JOIN pasien p ON (pr.id_pasien=p.id) ORDER BY pr.tgl_periksa DESC");
-    $no = 1;
-    while ($data = mysqli_fetch_array($result)) {
-    ?>
-        <tr>
-            <td><?php echo $no++ ?></td>
-            <td><?php echo $data['nama_pasien'] ?></td>
-            <td><?php echo $data['nama_dokter'] ?></td>
-            <td><?php echo $data['tgl_periksa'] ?></td>
-            <td><?php echo $data['catatan'] ?></td>
-            <td>
-                <a class="btn btn-success rounded-pill px-3" 
-                href="index.php?page=periksa&id=<?php echo $data['id'] ?>">
-                Ubah</a>
-                <a class="btn btn-danger rounded-pill px-3" 
-                href="index.php?page=periksa&id=<?php echo $data['id'] ?>&aksi=hapus">Hapus</a>
-            </td>
-        </tr>
-    <?php
-    }
-    ?>
-
-        <div class="col">
-            <label for="inputIsi" class="form-label fw-bold">
-                Nama
-            </label>
-            <input type="text" class="form-control" name="Nama" id="inputNama" placeholder="Nama" value="<?php echo $Nama_pasien ?>">
-        </div>
         <br>
-        <div class="col">
-            <label for="inputTanggalAwal" class="form-label fw-bold">
-                Nama Dokter
-            </label>
-            <input type="text" class="form-control" name="Nama dokter" id="inputAlamat" placeholder="Nama Dokter" value="<?php echo $Nama_dokter ?>">
+        <!-- Nama Dokter -->
+        <div class="form-group mx-sm-3 mb-2">
+            <label for="inputDokter" class="sr-only">Dokter</label>
+            <select class="form-control" name="id_dokter" id="inputDokter">
+                <option value="">Pilih Dokter</option>
+                <?php foreach ($dokter as $data): ?>
+                    <option value="<?= $data['ID']; ?>"><?= $data['nama']; ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
-        <br>
 
+
+        <!-- tanggal periksa -->
         <div class="col mb-2">
             <label for="inputTanggalAkhir" class="form-label fw-bold">
                 Tanggal Periksa
             </label>
-            <input type="date" class="form-control" name="Tanggal periksa" id="inputTanggal" placeholder="Tanggal periksa" value="<?php echo $tgl_periksa ?>">
+            <input type="datetime-local" class="form-control" name="tgl_periksa" id="inputTanggal" placeholder="Tanggal periksa" value="<?= date('Y-m-d\TH:i'); ?>" />
         </div>
 
+        <!-- Catatan -->
         <div class="col">
-            <label for="inputTanggalAwal" class="form-label fw-bold">
+            <label for="catatan" class="form-label fw-bold">
                 Catatan
             </label>
-            <input type="text" class="form-control" name="Nama dokter" id="catatan" placeholder="Catatan" value="<?php echo $catatan ?>">
+            <textarea class="form-control" name="catatan" id="inputCatatan" placeholder="Catatan pasien"><?php echo isset($catatan) ? $catatan : ''; ?></textarea>
         </div>
+
         <br>
 
+        <div class="form-group">
+            <label for="obat">Obat</label>
+            <textarea id="obat" name="obat" class="form-control"><?= old('obat'); ?></textarea>
+        </div>
+
+        <table class="table table-hover">
+            <!-- thead atau baris judul -->
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Pasien</th>
+                    <th scope="col">Dokter</th>
+                    <th scope="col">Taggal Periksa</th>
+                    <th scope="col">Catatan</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data pasien -->
+                <?php if (isset($periksa) && count($periksa) > 0): ?>
+                    <?php $no = 1; ?>
+                    <?php foreach ($periksa as $row): ?>
+                        <tr>
+                            <td><?= $no++; ?></td>
+                            <td><?= htmlspecialchars($row['Pasien'] ?? ''); ?></td>
+                            <td><?= htmlspecialchars($row['Dokter'] ?? ''); ?></td>
+                            <td><?= htmlspecialchars($row['tgl_Periksa'] ?? ''); ?></td>
+                            <td><?= htmlspecialchars($row['catatan'] ?? ''); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="4" class="text-center">Tidak ada data</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+
+        <!-- simpan data -->
         <div class="col">
             <button type="submit" class="btn btn-primary rounded-pill px-3" name="simpan">Simpan</button>
         </div>
     </form>
+
+    <?php if (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger">
+            <?= session()->getFlashdata('error'); ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if (session()->getFlashdata('message')): ?>
+        <div class="alert alert-success">
+            <?= session()->getFlashdata('message'); ?>
+        </div>
+    <?php endif; ?>
 
     <!-- Boostrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

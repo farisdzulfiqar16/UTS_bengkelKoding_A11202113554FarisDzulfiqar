@@ -29,6 +29,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="<?= base_url('dokter') ?>">Dokter</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= base_url('/logout') ?>">Logout</a>
+                    </li>
 
                 </ul>
 
@@ -43,74 +46,62 @@
     <h2>Dokter</h2>
 
     <!-- Form -->
-    <form class="form row" method="POST" action="<?= base_url('pasien/save') ?>" name="myForm" onsubmit="return(validate());">
-        <!-- Kode php untuk menghubungkan form dengan database -->
-        <?php
-        // Mendefinisikan variabel untuk menyimpan data form
-        $Nama = '';
-        $Alamat = '';
-        $NoHP = '';
-
-        // Mengecek apakah form telah disubmit
-        if (isset($_POST['simpan'])) {
-            // Mengambil nilai dari form dan melakukan sanitasi input untuk menghindari SQL Injection
-            $Nama = mysqli_real_escape_string($mysqli, $_POST['Nama']);
-            $Alamat = mysqli_real_escape_string($mysqli, $_POST['Alamat']);
-            $NoHP = mysqli_real_escape_string($mysqli, $_POST['NoHP']);
-            // Membuat query untuk memasukkan data ke tabel 'pasien'
-            $query = "INSERT INTO pasien (Nama, Alamat, NoHP) VALUES ('$Nama', '$Alamat', '$NoHP')";
-            // Menjalankan query dan menyimpan hasilnya
-            $result = mysqli_query($mysqli, $query);
-
-            // Mengecek apakah query berhasil dieksekusi
-            if ($result) {
-                echo "Data berhasil disimpan!";
-            } else {
-                echo "Terjadi kesalahan saat menyimpan data: " . mysqli_error($mysqli);
-            }
-        }
-        ?>
-
-
-
+    <form class="form mx-sm-3 mb-2" method="POST" action="<?= base_url('pasien/save') ?>">
         <div class="col">
-            <label for="inputIsi" class="form-label fw-bold">
+            <label for="inputNama" class="form-label fw-bold">
                 Nama
             </label>
-            <input type="text" class="form-control" name="Nama" id="inputNama" placeholder="Nama" value="<?php echo $Nama ?>">
+            <input type="text" class="form-control" name="Nama" id="inputNama" placeholder="Nama" value="<?= isset($pasien['Nama']) ? $pasien['Nama'] : '' ?>">
         </div>
         <br>
         <div class="col">
-            <label for="inputTanggalAwal" class="form-label fw-bold">
+            <label for="inputAlamat" class="form-label fw-bold">
                 Alamat
             </label>
-            <input type="text" class="form-control" name="Alamat" id="inputAlamat" placeholder="Alamat" value="<?php echo $Alamat ?>">
+            <input type="text" class="form-control" name="Alamat" id="inputAlamat" placeholder="Alamat" value="<?= isset($pasien['Alamat']) ? $pasien['Alamat'] : '' ?>">
         </div>
         <br>
         <div class="col mb-2">
-            <label for="inputTanggalAkhir" class="form-label fw-bold">
+            <label for="inputNoHP" class="form-label fw-bold">
                 No HP
             </label>
-            <input type="text" class="form-control" name="NoHP" id="inputNo HP" placeholder="Nomer Hp" value="<?php echo $NoHP ?>">
+            <input type="text" class="form-control" name="NoHP" id="inputNoHP" placeholder="Nomer Hp" value="<?= isset($pasien['NoHP']) ? $pasien['NoHP'] : '' ?>">
         </div>
         <br>
         <div class="col">
             <button type="submit" class="btn btn-primary rounded-pill px-3" name="simpan">Simpan</button>
         </div>
+
     </form>
-    
+
+
     <table class="table table-hover">
         <!-- thead atau baris judul -->
         <thead>
             <tr>
                 <th scope="col">#</th>
-                <th scope="col">Pasien</th>
+                <th scope="col">dokter</th>
                 <th scope="col">Alamat</th>
                 <th scope="col">No.HP</th>
             </tr>
         </thead>
         <tbody>
-                
+            <!-- Data dokter -->
+            <?php if (isset($dokter) && count($dokter) > 0): ?>
+                <?php $no = 1; ?>
+                <?php foreach ($dokter as $row): ?>
+                    <tr>
+                        <td><?= $no++; ?></td>
+                        <td><?= htmlspecialchars($row['nama'] ?? ''); ?></td>
+                        <td><?= htmlspecialchars($row['alamat'] ?? ''); ?></td>
+                        <td><?= htmlspecialchars($row['NoHP'] ?? ''); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="4" class="text-center">Tidak ada data</td>
+                </tr>
+            <?php endif; ?>
         </tbody>
     </table>
 

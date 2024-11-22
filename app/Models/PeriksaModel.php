@@ -14,6 +14,15 @@ class PeriksaModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = ['pasien', 'dokter', 'tgl_periksa', 'catatan'];
 
+    // Ambil data dengan join
+    public function getPeriksaWithRelations()
+    {
+        return $this->select('periksa.*, pasien.nama AS nama_pasien, dokter.nama AS nama_dokter')
+                    ->join('pasien', 'pasien.id = periksa.pasien')
+                    ->join('dokter', 'dokter.id = periksa.dokter')
+                    ->findAll();
+    }
+
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
 

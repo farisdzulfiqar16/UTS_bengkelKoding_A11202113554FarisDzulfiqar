@@ -38,26 +38,40 @@
             <a class="nav-link active" aria-current="page" href="#">Home</a>
           </li>
 
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="<?= base_url('periksa') ?>">Periksa</a>
-          </li>
+          <!-- Tampilkan hanya untuk pasien -->
+          <?php if (session()->get('role') === 'pasien' || session()->get('role') === 'guest'): ?>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="<?= base_url('periksa') ?>">Periksa</a>
+            </li>
+          <?php endif; ?>
 
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Data Master
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="<?= base_url('pasien') ?>">Halaman Pasien</a></li>
-              <li><a class="dropdown-item" href="<?= base_url('dokter') ?>">Halaman Dokter</a></li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li><a class="dropdown-item" href="#">Tentang Kami</a></li>
-            </ul>
+          <?php if (session()->get('role') === 'admin'): ?>
+            <!-- Menu untuk Admin -->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Data Master
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="<?= base_url('pasien') ?>">Halaman Pasien</a></li>
+                <li><a class="dropdown-item" href="<?= base_url('dokter') ?>">Halaman Dokter</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="#">Tentang Kami</a></li>
+              </ul>
+            </li>
+          <?php endif; ?>
+
+          <?php if (session()->get('role') === 'admin' || session()->get('role') === 'pasien'): ?>
+            <!-- Menu untuk Admin dan Pasien, misalnya Periksa -->
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="<?= base_url('periksa') ?>">Periksa</a>
+            </li>
+          <?php endif; ?>
+
+          <li class="nav-item">
+            <a class="nav-link" href="<?= base_url('/logout') ?>">Logout</a>
           </li>
-          <!-- <li class="nav-item">
-          <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-        </li> -->
         </ul>
 
         <form class="d-flex" role="search">
@@ -67,10 +81,11 @@
       </div>
     </div>
   </nav>
-    <h3> Selamat Datang di Sistem Informasi Poliklinik</h3>
+
+  <h3> Selamat Datang di Sistem Informasi Poliklinik</h3>
   <!-- Boostrap -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  
+
 </body>
 
 </html>
